@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <target>C:\path\to\target\DLL.dll</target>
+  <rename_target>DLL2.dll</rename_target>
+  <output_dir>generated</output_dir>
+  <intercepts>
+    <function>
+      <name>print_hello</name>
+      <paramaters>
+      </paramaters>
+      <return_type>int</return_type>
+    </function>
+    <function>
+      <name>add_numbers</name>
+      <paramaters>
+        <param type="int">a</param>
+        <param type="int">b</param>
+      </paramaters>
+      <return_type>int</return_type>
+    </function>
+  </intercepts>
+</configuration>
