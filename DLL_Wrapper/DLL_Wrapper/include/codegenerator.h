@@ -27,6 +27,8 @@
 //intercepts_h_template.cpp
 extern const char	*intercepts_h_header;
 extern const char	*intercepts_h_function;
+//def_file_template.cpp
+extern const char	*def_header;
 //c_ext_intercepts_template.cpp
 extern const char	*c_ext_intercepts_global;
 //intercepted_function_template.cpp
@@ -52,6 +54,7 @@ public:
 
 	bool			generateForwardsHeader(const PEHeader::Exports &exports);
 	bool			generateInterceptsHeader(unsigned int call_table_size);
+	bool			generateDefFile(const PEHeader::Exports & exports);
 	bool			generateCExtCallTable(unsigned int call_table_size);
 	bool			generateInterceptedFunction(const Configuration::InterceptFunction &function, unsigned int function_index);
 	bool			generateBridge(const Configuration::InterceptFunction &function, unsigned int function_index);

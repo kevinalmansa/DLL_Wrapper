@@ -34,7 +34,9 @@ extern "C" void		*(c_ext_intercepts[%u]);
 */
 const char		*intercepts_h_function = R"INTERCEPTFNCT(
 
-extern "C" INTERCEPTED_API %s		%s(%s);
+// Uncomment line bellow if NOT using the .DEF file.
+// DEF file needed to export with specific ordinal value.
+//extern "C" INTERCEPTED_API %s		%s(%s);
 extern "C" %s						%s(%s);
 
 )INTERCEPTFNCT";

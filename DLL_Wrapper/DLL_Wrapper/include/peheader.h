@@ -40,6 +40,12 @@ public:
 	
 		std::stringstream					toVsLinkerExport(const char *targetName,
 			const Configuration::Intercepts &intercepts) const;
+		std::stringstream					toDefExport(const char * targetName,
+			const Configuration::Intercepts & intercepts) const;
+		std::stringstream					&defIntercepts(std::stringstream &stream,
+			const Configuration::Intercepts & intercepts) const;
+		std::stringstream					&defForwards(std::stringstream &stream,
+			const std::string &targetname, const Configuration::Intercepts & intercepts) const;
 	};
 
 private:

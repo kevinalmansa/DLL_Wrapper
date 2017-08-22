@@ -169,7 +169,8 @@ std::stringstream PEHeader::Exports::toVsLinkerExport(const char *targetName,
 
 	for (std::vector<OrdinalExport>::const_iterator itr = ordinal.begin(); itr != ordinal.end(); ++itr)
 	{
-		if (!intercepts.contain(std::to_string(itr->ordinal)))
+		//WARNING: Intercepting by ordinal requires following format in config: ord123
+		if (!intercepts.contain(std::string("ord") + std::to_string(itr->ordinal)))
 		{
 			//#pragma comment(linker, "export:ord243=user33.#243,@243,NONAME")
 			ret << "#pragma comment(linker, \"/export:ord" << itr->ordinal << "="
@@ -195,7 +196,7 @@ std::stringstream PEHeader::Exports::toVsLinkerExport(const char *targetName,
 	{
 		if (!intercepts.contain(std::to_string(itr->ordinal))) {
 			//pragma comment(linker, "export:ord243=NTDLL.#243,@243,NONAME")
-			// TODO Will this actually have a forwardname? or do I need to generate it?
+			//Note: forward_name is from binary, ex: Target_Ordinal_ForwardTo.#1
 			ret << "#pragma comment(linker, \"/export:ord" << itr->ordinal << "="
 				<< itr->forward_name << ",@" << itr->ordinal
 				<< ",NONAME\")" << std::endl;
@@ -205,11 +206,96 @@ std::stringstream PEHeader::Exports::toVsLinkerExport(const char *targetName,
 	{
 		if (!intercepts.contain(itr->name)) {
 			//pragma comment(linker, "export:MessageBox=NTDLL.QMessageBox,@243")
-			ret << "#pragma comment(linker, \"export:" << itr->name << "="
+			ret << "#pragma comment(linker, \"/export:" << itr->name << "="
 				<< itr->forward_name << ",@" << itr->ordinal
 				<< "\")" << std::endl;
 		}
 	}
 
+
+	return ret;
+}
+
+std::stringstream	&PEHeader::Exports::defIntercepts(std::stringstream &stream,
+	const Configuration::Intercepts & intercepts) const
+{
+	for (std::vector<OrdinalExport>::const_iterator itr = ordinal.begin(); itr != ordinal.end(); ++itr)
+	{
+		//WARNING: Intercepting by ordinal requires following format: ord123
+		if (intercepts.contain(std::string("ord") + std::to_string(itr->ordinal)))
+		{
+			//ord123=ord123 @123 NONAME
+			stream << "\tord" << itr->ordinal << "=" << "ord" << itr->ordinal << " @"
+				<< itr->ordinal << " NONAME" << std::endl;
+		}
+	}
+	for (std::vector<NamedExport>::const_iterator itr = named.begin(); itr != named.end(); ++itr)
+	{
+		if (intercepts.contain(itr->name))
+		{
+			//name=name @123
+			stream << "\t" << itr->name << "=" << itr->name << " @" << itr->ordinal
+				<< std::endl;
+		}
+	}
+
+	// TODO intercepting forwards? sounds like a strange nich need. Won't implement for now.
+	return stream;
+}
+
+std::stringstream					&PEHeader::Exports::defForwards(std::stringstream &stream,
+	const std::string &targetname, const Configuration::Intercepts & intercepts) const
+{
+	for (std::vector<OrdinalExport>::const_iterator itr = ordinal.begin(); itr != ordinal.end(); ++itr)
+	{
+		//WARNING: Intercepting by ordinal requires following format: ord123
+		if (!intercepts.contain(std::string("ord") + std::to_string(itr->ordinal)))
+		{
+			//ord123=target.#123 @123 NONAME
+			stream << "\tord" << itr->ordinal << "=" << targetname << "." << "#"
+				<< itr->ordinal << " @" << itr->ordinal << " NONAME" << std::endl;
+		}
+	}
+	for (std::vector<NamedExport>::const_iterator itr = named.begin(); itr != named.end(); ++itr)
+	{
+		if (!intercepts.contain(itr->name))
+		{
+			//name=target.name @123
+			stream << "\t" << itr->name << "=" << targetname << "." << itr->name << " @"
+				<< itr->ordinal << std::endl;
+		}
+	}
+	//THESE CAN BE FORWARDED TO TARGET DLL OR DIRECTLY TO WHAT TARGET FORWARDS TO.
+	//THIS IMPLEMENTATION WILL FORWARD DIRECTLY, BYPASSING TARGET.
+	//CAN BE MANUALLY CHANGED AFTERWARDS.
+	for (std::vector<ForwardOrdinalExport>::const_iterator itr = forward_ordinal.begin(); itr != forward_ordinal.end(); ++itr)
+	{
+		if (!intercepts.contain(std::to_string(itr->ordinal))) {
+			//ord243=NTDLL.#243 @243 NONAME
+			// Note: forward_name is from binary, ex: Target_Ordinal_ForwardTo.#1
+			stream << "\tord" << itr->ordinal << "=" << itr->forward_name << " @"
+				<< itr->ordinal << " NONAME" << std::endl;
+		}
+	}
+	for (std::vector<ForwardNamedExport>::const_iterator itr = forward_named.begin(); itr != forward_named.end(); ++itr)
+	{
+		if (!intercepts.contain(itr->name)) {
+			//name=NTDLL.name @123
+			stream << "\t" << itr->name << "=" << itr->forward_name << " @"
+				<< itr->ordinal << " NONAME" << std::endl;
+		}
+	}
+	return stream;
+}
+
+std::stringstream PEHeader::Exports::toDefExport(const char * targetName,
+	const Configuration::Intercepts & intercepts) const
+{
+	std::stringstream					ret;
+
+	ret << "; INTERCEPT FUNCTIONS" << std::endl;
+	defIntercepts(ret, intercepts);
+	//ret << "; FORWARDS" << std::endl;
+	//defForwards(ret, targetName, intercepts);
 	return ret;
 }

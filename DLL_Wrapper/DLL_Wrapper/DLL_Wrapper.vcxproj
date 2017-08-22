@@ -155,6 +155,7 @@
     <ClCompile Include="src\codegenerator.cpp" />
     <ClCompile Include="src\configuration.cpp" />
     <ClCompile Include="src\c_ext_intercepts_template.cpp" />
+    <ClCompile Include="src\def_file_template.cpp" />
     <ClCompile Include="src\DLL_Wrapper.cpp" />
     <ClCompile Include="src\intercepted_function_template.cpp" />
     <ClCompile Include="src\intercepts.cpp" />
@@ -173,7 +174,9 @@
     <ClInclude Include="include\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="configuration.xml" />
+    <Xml Include="configuration.xml">
+      <SubType>Designer</SubType>
+    </Xml>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

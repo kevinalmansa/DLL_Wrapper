@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
-  <target>C:\path\to\target\DLL.dll</target>
-  <rename_target>DLL2.dll</rename_target>
+  <target>Documents\GitHub\DLL_Wrapper_Example\DLL_Wrapper_Example\x64\Debug\Target_DLL.dll</target>
+  <rename_target>Target_DLL2.dll</rename_target>
   <output_dir>generated</output_dir>
   <intercepts>
     <function>
