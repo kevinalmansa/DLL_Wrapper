@@ -60,6 +60,21 @@ implement Forward Exports for non-implemented functions will also be generated.
 Generated code can then be imported into a Visual Studio DLL Project, and
 compiled into a DLL.
 
+Generated code must be able to intercept by name or ordinal value, forward by name
+or ordinal value, but must also handle any forward exports the target DLL may poses.
+
+The following must thus be handled:
+
+**Intercepts**
+  - Intercept by name
+  - Intercept by ordinal
+  
+**Forward Exports**
+  - Forward by name to a function exported by name
+  - Forward by ordinal to a function exported by ordinal
+  - Forward by name to a function exported by ordinal
+  - Forward by ordinal to a function exported by name
+
 ## Build
 
 Open DLL_Wrapper.sln with Visual Studio and build Debug or Release, x86 or x64
@@ -88,6 +103,23 @@ To clarify:
         - \<name>: Name of the function to intercept (can be an ordinal)
       	- \<paramaters>: (optional) list of parameters for the function
           - \<param>: Function parameter. Attribute type is required.
+
+To intercept by ordinal the configuration file requires the following format for the name:
+```"ord"``` + ```ordinal_value```. For example, to intercept ordinal 5: ```ord5```.
+
+Generated stub code to implement a Proxy DLL will be output to the <outuput_dir>. 
+
+A subtle but important implementation to note; this stub code will produce both a *DEF file*
+and make use of *VS Linker Directives* when exporting functions:
+  - **DEF file**: used to export intercepted functions with a specific ordinal value. It is
+  not used for Forward Exports due to a linking verification done by the linker which would
+  prevent the build of the Proxy DLL.
+  - **VS Linker Directives**: placed in a header file ```forwards.h```, these directives allow
+  us to create Forward Export entries in the Exports Directory of the DLL without the linker
+  verification.
+  
+I am not sure why a linking verification is done when specifying a Forward Export in a DEF file,
+nor why it is NOT performed when using VS Linker Directives.
 
 # Example
 
